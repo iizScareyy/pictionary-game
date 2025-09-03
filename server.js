@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
   socket.on("correct guess", ({ username }) => {
     const room = socket.data.room;
     io.to(room).emit("system", `${username} guessed correctly!`);
-    gameController.nextTurn(room, io);
+    gameController.nextTurn(io, room);
   });
 
   // Handle chat
@@ -85,5 +85,6 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server running → http://localhost:${PORT}`));
-
+server.listen(PORT, () =>
+  console.log(`Server running → http://localhost:${PORT}`)
+);

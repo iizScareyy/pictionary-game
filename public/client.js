@@ -3,11 +3,6 @@ let username = "";
 let isDrawer = false;
 let currentWord = "";
 
-// WebRTC variables
-let localStream;
-let peers = {};
-let inVC = false;
-
 // Join game
 function joinGame() {
   username = document.getElementById("usernameInput").value.trim();
@@ -35,7 +30,6 @@ function sendMessage() {
 socket.on("chat message", (data) => {
   addMessage(`${data.username}: ${data.msg}`);
 
-  // Check correct guess
   if (!isDrawer && data.msg.toLowerCase() === currentWord.toLowerCase()) {
     addMessage(`✅ ${data.username} guessed correctly!`);
     socket.emit("correct guess", { username: data.username });
@@ -45,7 +39,7 @@ socket.on("chat message", (data) => {
 // System messages
 socket.on("system", (msg) => addMessage(msg));
 
-// Add message helper
+// Helper
 function addMessage(text) {
   const li = document.createElement("li");
   li.textContent = text;
@@ -85,18 +79,21 @@ socket.on("round:start", (data) => {
 
   const wordElement = document.getElementById("currentWord");
   if (isDrawer) {
-    document.getElementById("welcomeMsg").textContent = "Your turn! Draw the word:";
-    wordElement.textContent = currentWord;
+    document.getElementById("welcomeMsg").textContent = "Your turn! Draw:";
+    wordElement.textContent = currentWord; // drawer sees real word
   } else {
     document.getElementById("welcomeMsg").textContent = "Guess the word:";
-    wordElement.textContent = currentWord;
+    wordElement.textContent = data.word; // guessers see underscores
   }
 });
 
 // ------------------- Voice Chat -------------------
+let localStream;
+let peers = {};
+let inVC = false;
+
 async function joinVoiceChat() {
   if (inVC) return;
-
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
     inVC = true;
@@ -105,7 +102,6 @@ async function joinVoiceChat() {
 
     socket.on("new peer", async (peerId) => {
       if (peers[peerId]) return;
-
       const pc = new RTCPeerConnection();
       localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 
@@ -127,9 +123,8 @@ async function joinVoiceChat() {
       socket.emit("offer", { offer, to: peerId });
       peers[peerId] = pc;
     });
-
   } catch (err) {
-    console.error("Error accessing microphone:", err);
+    console.error("Error accessing mic:", err);
     alert("Could not access microphone.");
   }
 }
@@ -137,15 +132,12 @@ async function joinVoiceChat() {
 function leaveVoiceChat() {
   if (!inVC) return;
   inVC = false;
-
   Object.values(peers).forEach(pc => pc.close());
   peers = {};
-
   if (localStream) {
     localStream.getTracks().forEach(track => track.stop());
     localStream = null;
   }
-
   socket.emit("leave vc", { username });
 }
 
@@ -156,27 +148,25 @@ function toggleMute() {
   updateVCPlayers();
 }
 
-// Update VC players table
+// VC players update
 socket.on("vc:update", (players) => {
   const tbody = document.getElementById("vcPlayers");
   if (!tbody) return;
-
   tbody.innerHTML = "";
   players.forEach(p => {
     const row = document.createElement("tr");
     const status = (p === username && localStream && !localStream.getAudioTracks()[0].enabled)
-      ? "Muted"
-      : "Connected";
+      ? "Muted" : "Connected";
     row.innerHTML = `<td>${p}${p === username ? " (You)" : ""}</td><td>${status}</td>`;
     tbody.appendChild(row);
   });
 });
 
 function updateVCPlayers() {
-  socket.emit("join vc", { username }); // refresh table
+  socket.emit("join vc", { username });
 }
 
-// Handle signaling
+// Signaling
 socket.on("offer", async ({ offer, from }) => {
   const pc = new RTCPeerConnection();
   localStream.getTracks().forEach(track => pc.addTrack(track, localStream));

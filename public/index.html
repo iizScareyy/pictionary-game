@@ -3,6 +3,7 @@
 <head>
   <title>GuessTheWord Game</title>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js" defer></script>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -137,32 +138,25 @@
 
   <!-- Game Screen -->
   <div id="gameScreen">
-    
-    <p>Word: <span id="currentWord">----</span></p>
+    <h2 id="welcomeMsg">Waiting for game to start...</h2>
+    <p><strong>Word:</strong> <span id="currentWord">----</span></p>
 
     <div style="display:flex; gap:10px; margin-bottom:15px;">
       <button id="startBtn" onclick="startGame()">Start Game</button>
-      
     </div>
 
-    <!-- Voice Chat Panel -->
-    <div id="vcPanel" style="display:none;">
-      <h4>🎤 Voice Chat</h4>
-      <ul id="vcUsers"></ul>
-      <button id="muteBtn" onclick="toggleMute()">Mute</button>
-      <button id="disconnectVCBtn" onclick="disconnectVC()">Disconnect</button>
-    </div>
+  
+
     <div style="margin-top:20px;">
-  <h3>Voice Chat</h3>
-  <button onclick="joinVoiceChat()">Join VC 🎤</button>
-  <button onclick="leaveVoiceChat()">Leave VC ❌</button>
-  <button onclick="toggleMute()">Mute/Unmute 🔇</button>
-  <table border="1" style="margin-top:10px; background:white;">
-    <thead><tr><th>Player</th><th>Status</th></tr></thead>
-    <tbody id="vcPlayers"></tbody>
-  </table>
-</div>
-
+      <h3>Voice Chat</h3>
+      <button onclick="joinVoiceChat()">Join VC 🎤</button>
+      <button onclick="leaveVoiceChat()">Leave VC ❌</button>
+      <button onclick="toggleMute()">Mute/Unmute 🔇</button>
+      <table border="1" style="margin-top:10px; background:white;">
+        <thead><tr><th>Player</th><th>Status</th></tr></thead>
+        <tbody id="vcPlayers"></tbody>
+      </table>
+    </div>
 
     <!-- Chat -->
     <ul id="messages"></ul>
@@ -172,7 +166,5 @@
     <!-- Drawing board -->
     <canvas id="board" width="500" height="400"></canvas>
   </div>
-
-  <script src="client.js"></script>
 </body>
 </html>
