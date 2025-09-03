@@ -58,6 +58,14 @@ canvas.addEventListener("mouseup", () => drawing = false);
 canvas.addEventListener("mouseleave", () => drawing = false);
 canvas.addEventListener("mousemove", draw);
 
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+}, { passive: false });
+
 function draw(e) {
   if (!drawing || !isDrawer) return;
   const x = e.offsetX;
