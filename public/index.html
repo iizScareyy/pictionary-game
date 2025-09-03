@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GuessTheWord Game</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 40px;
+      margin-bottom: 25px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #joinScreen, #gameScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      min-width: 350px;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input {
+      padding: 12px 15px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #aaa;
+      width: 220px;
+      outline: none;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 8px #4CAF50;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ff7eb3, #ff758c);
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      transform: scale(1.05);
+    }
+
+    #messages {
+      list-style: none;
+      padding: 12px;
+      max-height: 180px;
+      overflow-y: auto;
+      background: #f0f8ff;
+      border-radius: 10px;
+      width: 100%;
+    }
+
+    #board {
+      border: 2px solid #333;
+      border-radius: 12px;
+      background: #fff;
+      margin-top: 10px;
+      cursor: crosshair;
+    }
+
+    #vcPanel {
+      margin-top: 15px;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    #vcUsers {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    #vcUsers li {
+      padding: 5px 8px;
+      background: #e6f7ff;
+      margin-bottom: 6px;
+      border-radius: 6px;
+    }
+
+    #gameScreen { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to GuessTheWord Game 🎨</h1>
+
+  <!-- Join Screen -->
+  <div id="joinScreen">
+    <input id="usernameInput" placeholder="Enter your username" />
+    <button onclick="joinGame()">Join</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="gameScreen">
+    
+    <p>Word: <span id="currentWord">----</span></p>
+
+    <div style="display:flex; gap:10px; margin-bottom:15px;">
+      <button id="startBtn" onclick="startGame()">Start Game</button>
+      
+    </div>
+
+    <!-- Voice Chat Panel -->
+    <div id="vcPanel" style="display:none;">
+      <h4>🎤 Voice Chat</h4>
+      <ul id="vcUsers"></ul>
+      <button id="muteBtn" onclick="toggleMute()">Mute</button>
+      <button id="disconnectVCBtn" onclick="disconnectVC()">Disconnect</button>
+    </div>
+    <div style="margin-top:20px;">
+  <h3>Voice Chat</h3>
+  <button onclick="joinVoiceChat()">Join VC 🎤</button>
+  <button onclick="leaveVoiceChat()">Leave VC ❌</button>
+  <button onclick="toggleMute()">Mute/Unmute 🔇</button>
+  <table border="1" style="margin-top:10px; background:white;">
+    <thead><tr><th>Player</th><th>Status</th></tr></thead>
+    <tbody id="vcPlayers"></tbody>
+  </table>
+</div>
+
+
+    <!-- Chat -->
+    <ul id="messages"></ul>
+    <input id="chatInput" placeholder="Type a message" />
+    <button onclick="sendMessage()">Send</button>
+
+    <!-- Drawing board -->
+    <canvas id="board" width="500" height="400"></canvas>
+  </div>
+
+  <script src="client.js"></script>
+</body>
+</html>
