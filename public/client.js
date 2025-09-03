@@ -52,19 +52,51 @@ function addMessage(text) {
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 let drawing = false;
+let lastX = 0;
+let lastY = 0;
+ctx.lineWidth = 2;
+ctx.lineCap = "round";
 
 canvas.addEventListener("mousedown", () => { if (isDrawer) drawing = true; });
 canvas.addEventListener("mouseup", () => drawing = false);
 canvas.addEventListener("mouseleave", () => drawing = false);
 canvas.addEventListener("mousemove", draw);
 
+// --- MOBILE TOUCH DRAWING ---
 canvas.addEventListener("touchstart", (e) => {
+  if (!isDrawer) return;
   e.preventDefault();
-}, { passive: false });
+  drawing = true;
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  lastX = touch.clientX - rect.left;
+  lastY = touch.clientY - rect.top;
+});
 
 canvas.addEventListener("touchmove", (e) => {
+  if (!drawing || !isDrawer) return;
   e.preventDefault();
-}, { passive: false });
+  const touch = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const x = touch.clientX - rect.left;
+  const y = touch.clientY - rect.top;
+
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(x, y);
+  ctx.stroke();
+  ctx.closePath();
+
+  socket.emit("drawing", { x, y });
+
+  lastX = x;
+  lastY = y;
+});
+
+canvas.addEventListener("touchend", (e) => {
+  if (!isDrawer) return;
+  drawing = false;
+});
 
 function draw(e) {
   if (!drawing || !isDrawer) return;

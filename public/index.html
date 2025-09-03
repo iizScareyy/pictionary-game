@@ -98,6 +98,7 @@
       background: #fff;
       margin-top: 10px;
       cursor: crosshair;
+      touch-action: none; /* <-- Fix mobile drawing scroll issue */
     }
 
     #vcPanel {
@@ -144,8 +145,6 @@
     <div style="display:flex; gap:10px; margin-bottom:15px;">
       <button id="startBtn" onclick="startGame()">Start Game</button>
     </div>
-
-  
 
     <div style="margin-top:20px;">
       <h3>Voice Chat</h3>
